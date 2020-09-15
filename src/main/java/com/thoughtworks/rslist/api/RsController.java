@@ -23,8 +23,12 @@ public class RsController {
     }
 
     @GetMapping("/rs/list")
-    public List<RsEvent> getAllRsEvent() {
-        return rsList;
+    public List<RsEvent> getAllRsEvent(@RequestParam(required = false) Integer start,
+                                       @RequestParam(required = false) Integer end) {
+        if(start == null || end == null) {
+            return rsList;
+        }
+        return rsList.subList(start - 1, end);
     }
 
     @GetMapping("/rs/{index}")
