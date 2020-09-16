@@ -20,6 +20,7 @@ public class UserDto {
     private String gender;
     @Email
     private String email;
+    @NotEmpty
     private String phone;
 
     public UserDto(String userName, Integer age, String gender, String email, String phone) {
