@@ -5,6 +5,7 @@ import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.exceptions.CommentError;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -46,6 +47,9 @@ public class RsController {
     @ExceptionHandler(IndexOutOfBoundsException.class)
     public ResponseEntity<CommentError> handleIndexOutOfBoundsException(Exception ex) {
         CommentError commentError = new CommentError();
+        if(ex instanceof MethodArgumentNotValidException) {
+            commentError.setError("invalid param");
+        }
         commentError.setError("invalid index");
         if(ex.getMessage() != null) {
             commentError.setError(ex.getMessage());

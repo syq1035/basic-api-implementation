@@ -52,6 +52,16 @@ class RsListApplicationTests {
     }
 
     @Test
+    void should_no_add_a_rs_event_when_name_empty() throws Exception {
+        RsEvent rsEvent = new RsEvent(null, "异常");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(rsEvent);
+
+        mockMvc.perform(post("/rs/event").content(json).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void should_get_one_rs_event() throws Exception {
         mockMvc.perform(get("/rs/1"))
                 .andExpect(status().isOk())

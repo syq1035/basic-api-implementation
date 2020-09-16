@@ -1,11 +1,16 @@
 package com.thoughtworks.rslist.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 
 public class RsEvent {
+    @NotEmpty
     private String eventName;
     private String keyword;
     @Valid
+    @JsonIgnore
     private UserDto user;
 
     public RsEvent() {}
