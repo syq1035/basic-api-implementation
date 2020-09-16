@@ -1,4 +1,4 @@
-package com.thoughtworks.rslist.entity;
+package com.thoughtworks.rslist.dto;
 
 public class RsEvent {
     private String eventName;
