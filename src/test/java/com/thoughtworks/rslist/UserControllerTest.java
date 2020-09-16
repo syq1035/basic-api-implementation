@@ -99,4 +99,13 @@ public class UserControllerTest {
         mockMvc.perform(post("/user/register").content(userDtoJson).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void phone_should_start_1() throws Exception {
+        UserDto userDto = new UserDto("yanqin", 19, "female", "a@thoughtworks.com", "21234567890");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userDtoJson = objectMapper.writeValueAsString(userDto);
+        mockMvc.perform(post("/user/register").content(userDtoJson).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 }

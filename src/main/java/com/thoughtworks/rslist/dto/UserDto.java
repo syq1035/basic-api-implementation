@@ -21,6 +21,7 @@ public class UserDto {
     @Email
     private String email;
     @NotEmpty
+    @Pattern(regexp = "^1")
     private String phone;
 
     public UserDto(String userName, Integer age, String gender, String email, String phone) {
