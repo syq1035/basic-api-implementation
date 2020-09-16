@@ -38,6 +38,20 @@ class RsListApplicationTests {
     }
 
     @Test
+    void should_get_rs_list_by_range_when_index_out_of_bounds() throws Exception {
+        mockMvc.perform(get("/rs/list?start=1&end=30"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid request param")));
+    }
+
+    @Test
+    void should_get_one_rs_event_when_index_out_of_bounds() throws Exception {
+        mockMvc.perform(get("/rs/30"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid index")));
+    }
+
+    @Test
     void should_get_one_rs_event() throws Exception {
         mockMvc.perform(get("/rs/1"))
                 .andExpect(status().isOk())

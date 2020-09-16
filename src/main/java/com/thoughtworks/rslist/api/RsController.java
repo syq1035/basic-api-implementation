@@ -29,7 +29,10 @@ public class RsController {
         if(start == null || end == null) {
             return ResponseEntity.ok(rsList);
         }
-        return ResponseEntity.ok(rsList.subList(start - 1, end));
+        if(start > 0 && end < rsList.size() && start < end) {
+            return ResponseEntity.ok(rsList.subList(start - 1, end));
+        }
+        throw new IndexOutOfBoundsException("invalid request param");
     }
 
     @GetMapping("/rs/{index}")
@@ -44,6 +47,9 @@ public class RsController {
     public ResponseEntity<CommentError> handleIndexOutOfBoundsException(Exception ex) {
         CommentError commentError = new CommentError();
         commentError.setError("invalid index");
+        if(ex.getMessage() != null) {
+            commentError.setError(ex.getMessage());
+        }
         return ResponseEntity.badRequest().body(commentError);
     }
 
