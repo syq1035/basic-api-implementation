@@ -3,6 +3,7 @@ package com.thoughtworks.rslist.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.exceptions.CommentError;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,17 @@ public class RsController {
 
     @GetMapping("/rs/{index}")
     public ResponseEntity<RsEvent> getOneRsEvent(@PathVariable int index) {
+        if(index > rsList.size()) {
+            throw new IndexOutOfBoundsException();
+        }
         return ResponseEntity.ok(rsList.get(index - 1));
+    }
+
+    @ExceptionHandler(IndexOutOfBoundsException.class)
+    public ResponseEntity<CommentError> handleIndexOutOfBoundsException(Exception ex) {
+        CommentError commentError = new CommentError();
+        commentError.setError("invalid index");
+        return ResponseEntity.badRequest().body(commentError);
     }
 
     @PostMapping("/rs/event")
