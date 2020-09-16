@@ -18,6 +18,7 @@ public class UserDto {
     private Integer age;
     @NotEmpty
     private String gender;
+    @Email
     private String email;
     private String phone;
 
