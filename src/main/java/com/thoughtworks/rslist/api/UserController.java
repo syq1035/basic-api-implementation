@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 public class UserController {
 
-    private List<UserDto> userList = new ArrayList<>();
+    public List<UserDto> userList = new ArrayList<>();
 
     @PostMapping("/user/register")
     public void register(@Valid @RequestBody UserDto userDto) {

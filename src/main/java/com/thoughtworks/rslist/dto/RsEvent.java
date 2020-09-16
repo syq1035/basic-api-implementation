@@ -1,8 +1,12 @@
 package com.thoughtworks.rslist.dto;
 
+import javax.validation.Valid;
+
 public class RsEvent {
     private String eventName;
     private String keyword;
+    @Valid
+    private UserDto user;
 
     public RsEvent() {}
 
@@ -25,5 +29,13 @@ public class RsEvent {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
+    }
+
+    public UserDto getUser() {
+        return user;
+    }
+
+    public void setUser(UserDto user) {
+        this.user = user;
     }
 }

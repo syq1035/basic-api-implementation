@@ -2,6 +2,7 @@ package com.thoughtworks.rslist;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.RsEvent;
+import com.thoughtworks.rslist.dto.UserDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -64,6 +65,17 @@ class RsListApplicationTests {
     }
 
     @Test
+    void should_add_rs_event_and_user_valid() throws Exception {
+        RsEvent rsEvent = new RsEvent("台风来了", "天气");
+        UserDto userDto = new UserDto("", 19, "female", "a@thoughtworks.com", "18888888888");
+        rsEvent.setUser(userDto);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(rsEvent);
+        mockMvc.perform(post("/rs/event").content(json).contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void should_add_rs_event() throws Exception {
         mockMvc.perform(get("/rs/list"))
                 .andExpect(status().isOk())
@@ -76,6 +88,8 @@ class RsListApplicationTests {
                 .andExpect(jsonPath("$[2].keyword", is("无分类")));
 
         RsEvent rsEvent = new RsEvent("台风来了", "天气");
+        UserDto userDto = new UserDto("xiaowang", 19, "female", "a@thoughtworks.com", "18888888888");
+        rsEvent.setUser(userDto);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(rsEvent);
         mockMvc.perform(post("/rs/event").content(json).contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -91,7 +105,12 @@ class RsListApplicationTests {
                 .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
                 .andExpect(jsonPath("$[2].keyword", is("无分类")))
                 .andExpect(jsonPath("$[3].eventName", is("台风来了")))
-                .andExpect(jsonPath("$[3].keyword", is("天气")));
+                .andExpect(jsonPath("$[3].keyword", is("天气")))
+                .andExpect(jsonPath("$[3].user.userName", is("xiaowang")))
+                .andExpect(jsonPath("$[3].user.age", is(19)))
+                .andExpect(jsonPath("$[3].user.gender", is("female")))
+                .andExpect(jsonPath("$[3].user.email", is("a@thoughtworks.com")))
+                .andExpect(jsonPath("$[3].user.phone", is("18888888888")));
     }
 
     @Test
