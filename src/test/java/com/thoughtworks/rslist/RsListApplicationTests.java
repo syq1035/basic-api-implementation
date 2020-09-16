@@ -93,7 +93,7 @@ class RsListApplicationTests {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(rsEvent);
         mockMvc.perform(post("/rs/event").content(json).contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         mockMvc.perform(get("/rs/list"))
                 .andExpect(status().isOk())

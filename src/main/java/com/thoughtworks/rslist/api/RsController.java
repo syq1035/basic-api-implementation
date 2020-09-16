@@ -3,6 +3,7 @@ package com.thoughtworks.rslist.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,31 +23,32 @@ public class RsController {
     }
 
     @GetMapping("/rs/list")
-    public List<RsEvent> getAllRsEvent(@RequestParam(required = false) Integer start,
-                                       @RequestParam(required = false) Integer end) {
+    public ResponseEntity<List<RsEvent>> getAllRsEvent(@RequestParam(required = false) Integer start,
+                                                      @RequestParam(required = false) Integer end) {
         if(start == null || end == null) {
-            return rsList;
+            return ResponseEntity.ok(rsList);
         }
-        return rsList.subList(start - 1, end);
+        return ResponseEntity.ok(rsList.subList(start - 1, end));
     }
 
     @GetMapping("/rs/{index}")
-    public RsEvent getOneRsEvent(@PathVariable int index) {
-        return rsList.get(index - 1);
+    public ResponseEntity<RsEvent> getOneRsEvent(@PathVariable int index) {
+        return ResponseEntity.ok(rsList.get(index - 1));
     }
 
     @PostMapping("/rs/event")
-    public void addRsEvent(@Valid @RequestBody RsEvent rsEvent) throws JsonProcessingException {
+    public ResponseEntity addRsEvent(@Valid @RequestBody RsEvent rsEvent) throws JsonProcessingException {
         UserController userController = new UserController();
         List<UserDto> userList = userController.userList;
         if(!userList.contains(rsEvent.getUser())) {
             userController.register(rsEvent.getUser());
         }
         rsList.add(rsEvent);
+        return ResponseEntity.created(null).build();
     }
 
     @PutMapping("/rs/{index}")
-    public void editRsEvent(@PathVariable int index, @RequestBody RsEvent rsEvent) throws JsonProcessingException {
+    public ResponseEntity editRsEvent(@PathVariable int index, @RequestBody RsEvent rsEvent) throws JsonProcessingException {
         RsEvent oldRsEvent = rsList.get(index-1);
         if(rsEvent.getEventName() != null) {
             oldRsEvent.setEventName(rsEvent.getEventName());
@@ -54,10 +56,12 @@ public class RsController {
         if(rsEvent.getKeyword() != null) {
             oldRsEvent.setKeyword(rsEvent.getKeyword());
         }
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/rs/{index}")
-    public void deleteRsEvent(@PathVariable int index) {
+    public ResponseEntity deleteRsEvent(@PathVariable int index) {
         rsList.remove(index - 1);
+        return ResponseEntity.ok().build();
     }
 }
