@@ -11,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.ByteArrayOutputStream;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -105,12 +107,7 @@ class RsListApplicationTests {
                 .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
                 .andExpect(jsonPath("$[2].keyword", is("无分类")))
                 .andExpect(jsonPath("$[3].eventName", is("台风来了")))
-                .andExpect(jsonPath("$[3].keyword", is("天气")))
-                .andExpect(jsonPath("$[3].user.userName", is("xiaowang")))
-                .andExpect(jsonPath("$[3].user.age", is(19)))
-                .andExpect(jsonPath("$[3].user.gender", is("female")))
-                .andExpect(jsonPath("$[3].user.email", is("a@thoughtworks.com")))
-                .andExpect(jsonPath("$[3].user.phone", is("18888888888")));
+                .andExpect(jsonPath("$[3].keyword", is("天气")));
     }
 
     @Test
