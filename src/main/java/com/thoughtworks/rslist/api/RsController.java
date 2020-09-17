@@ -3,9 +3,12 @@ package com.thoughtworks.rslist.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.entity.RsEventEntity;
 import com.thoughtworks.rslist.exceptions.CommentError;
+import com.thoughtworks.rslist.repository.RsEventRepository;
+import com.thoughtworks.rslist.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -14,6 +17,12 @@ import java.util.List;
 
 @RestController
 public class RsController {
+
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    RsEventRepository rsEventRepository;
+
     private List<RsEvent> rsList = initRsList();
 
     public List<RsEvent> initRsList() {
@@ -46,13 +55,16 @@ public class RsController {
 
     @PostMapping("/rs/event")
     public ResponseEntity addRsEvent(@Valid @RequestBody RsEvent rsEvent) throws JsonProcessingException {
-//        UserController userController = new UserController();
-//        List<UserDto> userList = userController.userList;
-//        if(!userList.contains(rsEvent.getUser())) {
-//            userController.register(rsEvent.getUser());
-//        }
-        rsList.add(rsEvent);
-        return ResponseEntity.created(null).header("index", String.valueOf(rsList.size()-1)).build();
+        if (!userRepository.existsById(rsEvent.getUserId())) {
+            return ResponseEntity.badRequest().build();
+        }
+        RsEventEntity rsEventEntity = RsEventEntity.builder()
+                .eventName(rsEvent.getEventName())
+                .keyword(rsEvent.getKeyword())
+                .userId(rsEvent.getUserId())
+                .build();
+        rsEventRepository.save(rsEventEntity);
+        return ResponseEntity.created(null).build();
     }
 
     @PutMapping("/rs/{index}")
