@@ -53,6 +53,12 @@ public class UserController {
                  .build());
     }
 
+    @DeleteMapping("/user/{id}")
+    public ResponseEntity deleteUserById(@PathVariable int id) {
+        userRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/users")
     public ResponseEntity<List<UserDto>> getAllUserList() {
         return ResponseEntity.ok(userList);

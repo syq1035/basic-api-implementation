@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.entity.UserEntity;
 import com.thoughtworks.rslist.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,8 +17,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,6 +30,10 @@ public class UserControllerTest {
     @Autowired
     UserRepository userRepository;
 
+    @BeforeEach
+    void setUp() {
+        userRepository.deleteAll();
+    }
     @Test
     void should_return_user_list() throws Exception {
         mockMvc.perform(get("/users"))
@@ -38,13 +42,35 @@ public class UserControllerTest {
     }
 
     @Test
+    void should_delete_user_by_id() throws Exception {
+        UserEntity userEntity = UserEntity.builder()
+                .userName("shanchu")
+                .age(19)
+                .email("female")
+                .gender("a@thoughtworks.com")
+                .phone("18888888888")
+                .build();
+        userRepository.save(userEntity);
+
+        mockMvc.perform(delete("/user/{id}", userEntity.getId()))
+                .andExpect(status().isNoContent());
+
+        List<UserEntity> users = userRepository.findAll();
+        assertEquals(0, users.size());
+    }
+
+    @Test
     void should_return_user_by_id() throws Exception {
-        UserDto userDto = new UserDto("yanqin", 19, "female", "a@thoughtworks.com", "18888888888");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String userDtoJson = objectMapper.writeValueAsString(userDto);
-        mockMvc.perform(post("/user/register").content(userDtoJson).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-        mockMvc.perform(get("/user/1"))
+        UserEntity userEntity = UserEntity.builder()
+                .userName("yanqin")
+                .age(19)
+                .email("female")
+                .gender("a@thoughtworks.com")
+                .phone("18888888888")
+                .build();
+        userRepository.save(userEntity);
+
+        mockMvc.perform(get("/user/{id}", userEntity.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userName", is("yanqin")));
     }
