@@ -8,12 +8,14 @@ import com.thoughtworks.rslist.exceptions.CommentError;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class RsController {
@@ -67,15 +69,19 @@ public class RsController {
         return ResponseEntity.created(null).build();
     }
 
-    @PutMapping("/rs/{index}")
-    public ResponseEntity editRsEvent(@PathVariable int index, @RequestBody RsEvent rsEvent) throws JsonProcessingException {
-        RsEvent oldRsEvent = rsList.get(index-1);
+    @PutMapping("/rs/{rsEventId}")
+    public ResponseEntity editRsEvent(@PathVariable int rsEventId, @RequestBody RsEvent rsEvent) throws JsonProcessingException {
+        RsEventEntity rsEventEntity = rsEventRepository.findById(rsEventId).get();
+        if (rsEvent.getUserId() != rsEventEntity.getUserId()) {
+            return ResponseEntity.badRequest().build();
+        }
         if(rsEvent.getEventName() != null) {
-            oldRsEvent.setEventName(rsEvent.getEventName());
+            rsEventEntity.setEventName(rsEvent.getEventName());
         }
         if(rsEvent.getKeyword() != null) {
-            oldRsEvent.setKeyword(rsEvent.getKeyword());
+            rsEventEntity.setKeyword(rsEvent.getKeyword());
         }
+        rsEventRepository.save(rsEventEntity);
         return ResponseEntity.ok().build();
     }
 

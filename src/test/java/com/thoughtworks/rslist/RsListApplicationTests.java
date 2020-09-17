@@ -132,47 +132,31 @@ class RsListApplicationTests {
     }
 
     @Test
-    void should_edit_rs_event() throws Exception {
-        mockMvc.perform(get("/rs/list"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
-                .andExpect(jsonPath("$[0].keyword", is("无分类")))
-                .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
-                .andExpect(jsonPath("$[1].keyword", is("无分类")))
-                .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
-                .andExpect(jsonPath("$[2].keyword", is("无分类")));
-
+    void should_edit_rs_event_by_id() throws Exception {
+        UserEntity userEntity = UserEntity.builder()
+                .userName("edit")
+                .age(19)
+                .email("female")
+                .gender("a@thoughtworks.com")
+                .phone("18888888888")
+                .build();
+        userRepository.save(userEntity);
+        RsEventEntity rsEventEntity = RsEventEntity.builder()
+                .eventName("睡觉了")
+                .keyword("娱乐")
+                .userId(userEntity.getId())
+                .build();
+        rsEventRepository.save(rsEventEntity);
+        RsEvent rsEvent = new RsEvent("新的热搜事件名", "新的关键字", userEntity.getId());
         ObjectMapper objectMapper = new ObjectMapper();
-
-        RsEvent rsEvent1 = new RsEvent();
-        rsEvent1.setKeyword("娱乐");
-        String json1 = objectMapper.writeValueAsString(rsEvent1);
-        mockMvc.perform(put("/rs/1").content(json1).contentType(MediaType.APPLICATION_JSON_VALUE))
+        String json = objectMapper.writeValueAsString(rsEvent);
+        mockMvc.perform(put("/rs/{rsEventId}", rsEventEntity.getId()).content(json).contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk());
 
-        RsEvent rsEvent2 = new RsEvent();
-        rsEvent2.setEventName("鸡蛋降价了");
-        String json2= objectMapper.writeValueAsString(rsEvent2);
-        mockMvc.perform(put("/rs/2").content(json2).contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk());
+        RsEventEntity eventEntity = rsEventRepository.findById(rsEventEntity.getId()).get();
+        assertEquals("新的热搜事件名", eventEntity.getEventName());
+        assertEquals("新的关键字", eventEntity.getKeyword());
 
-        RsEvent rsEvent3 = new RsEvent();
-        rsEvent3.setEventName("猪肉降价了");
-        rsEvent3.setKeyword("经济");
-        String json3= objectMapper.writeValueAsString(rsEvent3);
-        mockMvc.perform(put("/rs/3").content(json3).contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(get("/rs/list"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
-                .andExpect(jsonPath("$[0].keyword", is("娱乐")))
-                .andExpect(jsonPath("$[1].eventName", is("鸡蛋降价了")))
-                .andExpect(jsonPath("$[1].keyword", is("无分类")))
-                .andExpect(jsonPath("$[2].eventName", is("猪肉降价了")))
-                .andExpect(jsonPath("$[2].keyword", is("经济")));
     }
 
     @Test
