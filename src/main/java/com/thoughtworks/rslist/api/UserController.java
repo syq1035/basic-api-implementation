@@ -5,14 +5,12 @@ import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.entity.UserEntity;
 import com.thoughtworks.rslist.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UserController {
@@ -29,6 +27,7 @@ public class UserController {
         userList.add(new UserDto("xiaoming", 22, "male", "a@thoughtworks.com", "18888888888"));
         return userList;
     }
+
     @PostMapping("/user/register")
     public ResponseEntity register(@Valid @RequestBody UserDto userDto) {
         UserEntity userEntity = UserEntity.builder()
@@ -41,7 +40,20 @@ public class UserController {
         userRepository.save(userEntity);
         return ResponseEntity.created(null).header("index", String.valueOf(userList.size()-1)).build();
     }
-    @GetMapping("users")
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity getUserById(@PathVariable int id) {
+         UserEntity userEntity = userRepository.findById(id).get();
+         return ResponseEntity.ok(UserEntity.builder()
+                 .userName(userEntity.getUserName())
+                 .age(userEntity.getAge())
+                 .gender(userEntity.getGender())
+                 .email(userEntity.getEmail())
+                 .phone(userEntity.getPhone())
+                 .build());
+    }
+
+    @GetMapping("/users")
     public ResponseEntity<List<UserDto>> getAllUserList() {
         return ResponseEntity.ok(userList);
     }

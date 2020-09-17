@@ -38,6 +38,18 @@ public class UserControllerTest {
     }
 
     @Test
+    void should_return_user_by_id() throws Exception {
+        UserDto userDto = new UserDto("yanqin", 19, "female", "a@thoughtworks.com", "18888888888");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userDtoJson = objectMapper.writeValueAsString(userDto);
+        mockMvc.perform(post("/user/register").content(userDtoJson).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+        mockMvc.perform(get("/user/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userName", is("yanqin")));
+    }
+
+    @Test
     void should_register_user() throws Exception {
         UserDto userDto = new UserDto("xiaowang", 19, "female", "a@thoughtworks.com", "18888888888");
         ObjectMapper objectMapper = new ObjectMapper();
