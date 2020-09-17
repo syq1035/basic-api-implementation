@@ -10,7 +10,6 @@ public class RsEvent {
     private String eventName;
     private String keyword;
     @Valid
-    @JsonIgnore
     private UserDto user;
 
     public RsEvent() {}

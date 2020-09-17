@@ -44,19 +44,6 @@ public class RsController {
         return ResponseEntity.ok(rsList.get(index - 1));
     }
 
-    @ExceptionHandler(IndexOutOfBoundsException.class)
-    public ResponseEntity<CommentError> handleIndexOutOfBoundsException(Exception ex) {
-        CommentError commentError = new CommentError();
-        if(ex instanceof MethodArgumentNotValidException) {
-            commentError.setError("invalid param");
-        }
-        commentError.setError("invalid index");
-        if(ex.getMessage() != null) {
-            commentError.setError(ex.getMessage());
-        }
-        return ResponseEntity.badRequest().body(commentError);
-    }
-
     @PostMapping("/rs/event")
     public ResponseEntity addRsEvent(@Valid @RequestBody RsEvent rsEvent) throws JsonProcessingException {
         UserController userController = new UserController();

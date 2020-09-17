@@ -41,7 +41,7 @@ class RsListApplicationTests {
     void should_get_rs_list_by_range_when_index_out_of_bounds() throws Exception {
         mockMvc.perform(get("/rs/list?start=1&end=30"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("invalid request param")));
+                 .andExpect(jsonPath("$.error", is("invalid request param")));
     }
 
     @Test
@@ -58,7 +58,8 @@ class RsListApplicationTests {
         String json = objectMapper.writeValueAsString(rsEvent);
 
         mockMvc.perform(post("/rs/event").content(json).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid param")));
     }
 
     @Test
