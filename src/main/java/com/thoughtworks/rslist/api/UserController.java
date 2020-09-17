@@ -62,7 +62,8 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserDto>> getAllUserList() {
-        return ResponseEntity.ok(userList);
+    public ResponseEntity<List<UserEntity>> getAllUserList() {
+        List<UserEntity> users = userRepository.findAll();
+        return ResponseEntity.ok(users);
     }
 }

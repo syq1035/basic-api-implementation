@@ -40,9 +40,27 @@ public class UserControllerTest {
     }
     @Test
     void should_return_user_list() throws Exception {
+        UserEntity userEntity = UserEntity.builder()
+                .userName("xiaowang")
+                .age(19)
+                .email("female")
+                .gender("a@thoughtworks.com")
+                .phone("18888888888")
+                .build();
+        userRepository.save(userEntity);
+        UserEntity userEntity1 = UserEntity.builder()
+                .userName("lisi")
+                .age(19)
+                .email("male")
+                .gender("a@thoughtworks.com")
+                .phone("18888888888")
+                .build();
+        userRepository.save(userEntity1);
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)));
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].userName", is("xiaowang")))
+                .andExpect(jsonPath("$[1].userName", is("lisi")));
     }
 
     @Test
