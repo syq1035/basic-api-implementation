@@ -2,7 +2,9 @@ package com.thoughtworks.rslist;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.entity.RsEventEntity;
 import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,8 @@ public class UserControllerTest {
     MockMvc mockMvc;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    RsEventRepository rsEventRepository;
 
     @BeforeEach
     void setUp() {
@@ -51,12 +55,20 @@ public class UserControllerTest {
                 .phone("18888888888")
                 .build();
         userRepository.save(userEntity);
+        RsEventEntity rsEventEntity = RsEventEntity.builder()
+                .eventName("睡觉了")
+                .keyword("娱乐")
+                .userId(userEntity.getId())
+                .build();
+        rsEventRepository.save(rsEventEntity);
 
         mockMvc.perform(delete("/user/{id}", userEntity.getId()))
                 .andExpect(status().isNoContent());
 
         List<UserEntity> users = userRepository.findAll();
+        List<RsEventEntity> rsEvents = rsEventRepository.findAll();
         assertEquals(0, users.size());
+        assertEquals(0, rsEvents.size());
     }
 
     @Test

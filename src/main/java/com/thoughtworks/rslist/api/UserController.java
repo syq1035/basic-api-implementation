@@ -5,6 +5,7 @@ import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.entity.UserEntity;
 import com.thoughtworks.rslist.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -54,6 +55,7 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{id}")
+    @Transactional
     public ResponseEntity deleteUserById(@PathVariable int id) {
         userRepository.deleteById(id);
         return ResponseEntity.noContent().build();
