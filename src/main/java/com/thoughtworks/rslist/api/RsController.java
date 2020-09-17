@@ -46,11 +46,11 @@ public class RsController {
 
     @PostMapping("/rs/event")
     public ResponseEntity addRsEvent(@Valid @RequestBody RsEvent rsEvent) throws JsonProcessingException {
-        UserController userController = new UserController();
-        List<UserDto> userList = userController.userList;
-        if(!userList.contains(rsEvent.getUser())) {
-            userController.register(rsEvent.getUser());
-        }
+//        UserController userController = new UserController();
+//        List<UserDto> userList = userController.userList;
+//        if(!userList.contains(rsEvent.getUser())) {
+//            userController.register(rsEvent.getUser());
+//        }
         rsList.add(rsEvent);
         return ResponseEntity.created(null).header("index", String.valueOf(rsList.size()-1)).build();
     }
