@@ -8,6 +8,7 @@ import javax.validation.constraints.*;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserDto {
     @NotEmpty
     @Size(max = 8)
@@ -23,6 +24,7 @@ public class UserDto {
     @NotEmpty
     @Pattern(regexp = "^1\\d{10}$")
     private String phone;
+    private int voteNum = 10;
 
     public UserDto(String userName, Integer age, String gender, String email, String phone) {
         this.userName = userName;

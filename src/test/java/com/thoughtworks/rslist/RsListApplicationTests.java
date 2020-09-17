@@ -2,7 +2,7 @@ package com.thoughtworks.rslist;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.RsEvent;
-import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.dto.Vote;
 import com.thoughtworks.rslist.entity.RsEventEntity;
 import com.thoughtworks.rslist.entity.UserEntity;
 import com.thoughtworks.rslist.repository.RsEventRepository;
@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -181,5 +182,58 @@ class RsListApplicationTests {
                 .andExpect(jsonPath("$[0].keyword", is("无分类")))
                 .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
                 .andExpect(jsonPath("$[1].keyword", is("无分类")));
+    }
+
+    @Test
+    void should_vote() throws Exception {
+        UserEntity userEntity = UserEntity.builder()
+                .userName("vv")
+                .age(19)
+                .email("female")
+                .gender("a@thoughtworks.com")
+                .phone("18888888888")
+                .voteNum(10)
+                .build();
+        userRepository.save(userEntity);
+        RsEventEntity rsEventEntity = RsEventEntity.builder()
+                .eventName("投票")
+                .keyword("娱乐")
+                .userId(userEntity.getId())
+                .build();
+        rsEventRepository.save(rsEventEntity);
+        Date voteTime = new Date();
+        Vote vote = new Vote(userEntity.getId(), 4, voteTime);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(vote);
+        mockMvc.perform(post("/rs/vote/{rsEventId}", rsEventEntity.getId()).content(json).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+
+        UserEntity userEntity1 = userRepository.findById(userEntity.getId()).get();
+        assertEquals(6, userEntity1.getVoteNum());
+    }
+
+    @Test
+    void should_not_vote_when_voteNum_not_enough() throws Exception {
+        UserEntity userEntity = UserEntity.builder()
+                .userName("vv")
+                .age(19)
+                .email("female")
+                .gender("a@thoughtworks.com")
+                .phone("18888888888")
+                .voteNum(10)
+                .build();
+        userRepository.save(userEntity);
+        RsEventEntity rsEventEntity = RsEventEntity.builder()
+                .eventName("投票")
+                .keyword("娱乐")
+                .userId(userEntity.getId())
+                .build();
+        rsEventRepository.save(rsEventEntity);
+        Date voteTime = new Date();
+        Vote vote = new Vote(userEntity.getId(), 12, voteTime);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(vote);
+        mockMvc.perform(post("/rs/vote/{rsEventId}", rsEventEntity.getId()).content(json).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

@@ -2,20 +2,20 @@ package com.thoughtworks.rslist.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thoughtworks.rslist.dto.RsEvent;
-import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.dto.Vote;
 import com.thoughtworks.rslist.entity.RsEventEntity;
-import com.thoughtworks.rslist.exceptions.CommentError;
+import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.entity.VoteEntity;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
+import com.thoughtworks.rslist.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class RsController {
@@ -24,6 +24,8 @@ public class RsController {
     UserRepository userRepository;
     @Autowired
     RsEventRepository rsEventRepository;
+    @Autowired
+    VoteRepository voteRepository;
 
     private List<RsEvent> rsList = initRsList();
 
@@ -89,5 +91,23 @@ public class RsController {
     public ResponseEntity deleteRsEvent(@PathVariable int index) {
         rsList.remove(index - 1);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/rs/vote/{rsEventId}")
+    public ResponseEntity vote(@PathVariable int rsEventId, @RequestBody Vote vote) {
+        UserEntity userEntity = userRepository.findById(vote.getUserId()).get();
+        if(userEntity.getVoteNum() < vote.getVoteNum()) {
+            return ResponseEntity.badRequest().build();
+        }
+        VoteEntity voteEntity = VoteEntity.builder()
+                .rsEventId(rsEventId)
+                .userId(vote.getUserId())
+                .voteNum(vote.getVoteNum())
+                .voteTime(vote.getVoteTime())
+                .build();
+        voteRepository.save(voteEntity);
+        userEntity.setVoteNum(userEntity.getVoteNum() - vote.getVoteNum());
+        userRepository.save(userEntity);
+        return ResponseEntity.created(null).build();
     }
 }

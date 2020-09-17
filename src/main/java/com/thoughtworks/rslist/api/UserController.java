@@ -1,6 +1,5 @@
 package com.thoughtworks.rslist.api;
 
-import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.entity.UserEntity;
 import com.thoughtworks.rslist.repository.UserRepository;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class UserController {
@@ -37,6 +35,7 @@ public class UserController {
                 .email(userDto.getEmail())
                 .gender(userDto.getGender())
                 .phone(userDto.getPhone())
+                .voteNum(userDto.getVoteNum())
                 .build();
         userRepository.save(userEntity);
         return ResponseEntity.created(null).header("index", String.valueOf(userList.size()-1)).build();
