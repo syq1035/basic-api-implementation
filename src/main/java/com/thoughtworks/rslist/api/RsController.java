@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,41 +29,12 @@ public class RsController {
     @Autowired
     VoteRepository voteRepository;
 
-    private List<RsEvent> rsList = initRsList();
-
-    public List<RsEvent> initRsList() {
-        List<RsEvent> rslist = new ArrayList<>();
-        rslist.add(new RsEvent("第一条事件", "无分类"));
-        rslist.add(new RsEvent("第二条事件", "无分类"));
-        rslist.add(new RsEvent("第三条事件", "无分类"));
-        return rslist;
-    }
 
     @GetMapping("/rs/list")
-    public ResponseEntity<List<RsEvent>> getAllRsEvent(@RequestParam(required = false) Integer start,
-                                                      @RequestParam(required = false) Integer end) {
-        if(start == null || end == null) {
-            List<RsEventEntity> rsEventEntityList = rsEventRepository.findAll();
-            List<RsEvent> rsEvents = rsEventEntityList.stream().map(rsEventEntity ->
-                    RsEvent.builder()
-                            .eventName(rsEventEntity.getEventName())
-                            .keyword(rsEventEntity.getKeyword())
-                            .user(UserDto.builder()
-                                    .userName(rsEventEntity.getUser().getUserName())
-                                    .age(rsEventEntity.getUser().getAge())
-                                    .gender(rsEventEntity.getUser().getGender())
-                                    .email(rsEventEntity.getUser().getEmail())
-                                    .phone(rsEventEntity.getUser().getPhone())
-                                    .build())
-                            .build()
-            ).collect(Collectors.toList());
-            return ResponseEntity.ok(rsEvents);
-        }
-
-        if(start > 0 && end < rsList.size() && start < end) {
-            return ResponseEntity.ok(rsList.subList(start - 1, end));
-        }
-        throw new IndexOutOfBoundsException("invalid request param");
+    public ResponseEntity<List<RsEvent>> getAllRsEvent() {
+        List<RsEventEntity> rsEventEntityList = rsEventRepository.findAll();
+        List<RsEvent> rsEvents = rsEventEntityList.stream().map(rsEventEntity -> rsEventEntityToRsEvent(rsEventEntity)).collect(Collectors.toList());
+        return ResponseEntity.ok(rsEvents);
     }
 
     @GetMapping("/rs/{id}")
@@ -110,9 +80,9 @@ public class RsController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/rs/{index}")
-    public ResponseEntity deleteRsEvent(@PathVariable int index) {
-        rsList.remove(index - 1);
+    @DeleteMapping("/rs/{id}")
+    public ResponseEntity deleteRsEvent(@PathVariable int id) {
+        rsEventRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }
 

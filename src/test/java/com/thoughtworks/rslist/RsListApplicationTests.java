@@ -60,13 +60,6 @@ class RsListApplicationTests {
     }
 
     @Test
-    void should_get_rs_list_by_range_when_index_out_of_bounds() throws Exception {
-        mockMvc.perform(get("/rs/list?start=1&end=30"))
-                .andExpect(status().isBadRequest())
-                 .andExpect(jsonPath("$.error", is("invalid request param")));
-    }
-
-    @Test
     void should_get_one_rs_event_when_index_out_of_bounds() throws Exception {
         mockMvc.perform(get("/rs/30"))
                 .andExpect(status().isBadRequest())
@@ -104,28 +97,6 @@ class RsListApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.eventName", is("哈哈哈哈哈")));
     }
-
-//    @Test
-//    void should_get_rs_list_by_range() throws Exception {
-//        mockMvc.perform(get("/rs/list?start=1&end=2"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$", hasSize(2)))
-//                .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
-//                .andExpect(jsonPath("$[0].keyword", is("无分类")))
-//                .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
-//                .andExpect(jsonPath("$[1].keyword", is("无分类")));
-//    }
-
-//    @Test
-//    void should_add_rs_event_and_user_valid() throws Exception {
-//        RsEvent rsEvent = new RsEvent("台风来了", "天气");
-//        UserDto userDto = new UserDto("", 19, "female", "a@thoughtworks.com", "18888888888");
-//        rsEvent.setUser(userDto);
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        String json = objectMapper.writeValueAsString(rsEvent);
-//        mockMvc.perform(post("/rs/event").content(json).contentType(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isBadRequest());
-//    }
 
     @Test
     void should_add_rs_event_when_user_exists() throws Exception {
@@ -175,8 +146,24 @@ class RsListApplicationTests {
 
     @Test
     void should_delete_rs_event() throws Exception {
-        mockMvc.perform(delete("/rs/3"))
+        UserEntity userEntity = UserEntity.builder()
+                .userName("shanchu")
+                .age(19)
+                .email("female")
+                .gender("a@thoughtworks.com")
+                .phone("18888888888")
+                .build();
+        userRepository.save(userEntity);
+        RsEventEntity rsEventEntity = RsEventEntity.builder()
+                .eventName("睡觉了")
+                .keyword("娱乐")
+                .user(userEntity)
+                .build();
+        rsEventRepository.save(rsEventEntity);
+        mockMvc.perform(delete("/rs/{id}", rsEventEntity.getId()))
                 .andExpect(status().isOk());
+        List<RsEventEntity> rsEventEntityList = rsEventRepository.findAll();
+        assertEquals(0, rsEventEntityList.size());
     }
 
     @Test

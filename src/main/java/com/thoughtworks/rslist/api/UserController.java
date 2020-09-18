@@ -8,23 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 public class UserController {
 
-    public List<UserDto> userList = initUserList();
-
     private final UserRepository userRepository;
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
-    }
-    public List<UserDto> initUserList() {
-        List<UserDto> userList = new ArrayList<>();
-        userList.add(new UserDto("xiaowang", 19, "female", "a@thoughtworks.com", "18888888888"));
-        userList.add(new UserDto("xiaoming", 22, "male", "a@thoughtworks.com", "18888888888"));
-        return userList;
     }
 
     @PostMapping("/user/register")
@@ -38,7 +29,7 @@ public class UserController {
                 .voteNum(userDto.getVoteNum())
                 .build();
         userRepository.save(userEntity);
-        return ResponseEntity.created(null).header("index", String.valueOf(userList.size()-1)).build();
+        return ResponseEntity.created(null).build();
     }
 
     @GetMapping("/user/{id}")
