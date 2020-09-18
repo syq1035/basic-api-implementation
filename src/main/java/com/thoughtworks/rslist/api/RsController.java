@@ -67,12 +67,15 @@ public class RsController {
         throw new IndexOutOfBoundsException("invalid request param");
     }
 
-    @GetMapping("/rs/{index}")
-    public ResponseEntity<RsEvent> getOneRsEvent(@PathVariable int index) {
-        if(index > rsList.size()) {
+    @GetMapping("/rs/{id}")
+    public ResponseEntity<RsEvent> getOneRsEvent(@PathVariable int id) {
+        Optional<RsEventEntity> rsEventEntityOptional = rsEventRepository.findById(id);
+        if(!rsEventEntityOptional.isPresent()) {
             throw new IndexOutOfBoundsException();
         }
-        return ResponseEntity.ok(rsList.get(index - 1));
+        RsEventEntity rsEventEntity = rsEventEntityOptional.get();
+        RsEvent rsEvent = rsEventEntityToRsEvent(rsEventEntity);
+        return ResponseEntity.ok(rsEvent);
     }
 
     @PostMapping("/rs/event")
@@ -129,5 +132,20 @@ public class RsController {
         userEntity.setVoteNum(userEntity.getVoteNum() - vote.getVoteNum());
         userRepository.save(userEntity);
         return ResponseEntity.created(null).build();
+    }
+
+    private RsEvent rsEventEntityToRsEvent(RsEventEntity rsEventEntity) {
+        RsEvent rsEvent = RsEvent.builder()
+                .eventName(rsEventEntity.getEventName())
+                .keyword(rsEventEntity.getKeyword())
+                .user(UserDto.builder()
+                        .userName(rsEventEntity.getUser().getUserName())
+                        .age(rsEventEntity.getUser().getAge())
+                        .gender(rsEventEntity.getUser().getGender())
+                        .email(rsEventEntity.getUser().getEmail())
+                        .phone(rsEventEntity.getUser().getPhone())
+                        .build())
+                .build();
+        return rsEvent;
     }
 }
