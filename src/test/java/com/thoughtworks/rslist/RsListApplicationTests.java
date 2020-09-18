@@ -38,15 +38,25 @@ class RsListApplicationTests {
 
     @Test
     void should_get_rs_list() throws Exception {
+        UserEntity userEntity = UserEntity.builder()
+                .userName("aaaa")
+                .age(19)
+                .email("female")
+                .gender("a@thoughtworks.com")
+                .phone("18888888888")
+                .build();
+        userRepository.save(userEntity);
+        RsEventEntity rsEventEntity = RsEventEntity.builder()
+                .eventName("哈哈哈哈哈")
+                .keyword("娱乐")
+                .user(userEntity)
+                .build();
+        rsEventRepository.save(rsEventEntity);
         mockMvc.perform(get("/rs/list"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
-                .andExpect(jsonPath("$[0].keyword", is("无分类")))
-                .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
-                .andExpect(jsonPath("$[1].keyword", is("无分类")))
-                .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
-                .andExpect(jsonPath("$[2].keyword", is("无分类")));
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].eventName", is("哈哈哈哈哈")))
+                .andExpect(jsonPath("$[0].user.userName", is(userEntity.getUserName())));;
     }
 
     @Test
@@ -76,6 +86,7 @@ class RsListApplicationTests {
 
     @Test
     void should_get_one_rs_event() throws Exception {
+
         mockMvc.perform(get("/rs/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.eventName", is("第一条事件")))
@@ -145,12 +156,10 @@ class RsListApplicationTests {
         RsEventEntity rsEventEntity = RsEventEntity.builder()
                 .eventName("睡觉了")
                 .keyword("娱乐")
-                .userId(userEntity.getId())
+                .user(userEntity)
                 .build();
         rsEventRepository.save(rsEventEntity);
-        RsEvent rsEvent = new RsEvent("新的热搜事件名", "新的关键字", userEntity.getId());
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(rsEvent);
+        String json = "{\"eventName\":\"新的热搜事件名\",\"keyword\":\"新的关键字\",\"userId\":" + userEntity.getId() + "}";
         mockMvc.perform(put("/rs/{rsEventId}", rsEventEntity.getId()).content(json).contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk());
 
@@ -162,26 +171,8 @@ class RsListApplicationTests {
 
     @Test
     void should_delete_rs_event() throws Exception {
-        mockMvc.perform(get("/rs/list"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
-                .andExpect(jsonPath("$[0].keyword", is("无分类")))
-                .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
-                .andExpect(jsonPath("$[1].keyword", is("无分类")))
-                .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
-                .andExpect(jsonPath("$[2].keyword", is("无分类")));
-
         mockMvc.perform(delete("/rs/3"))
                 .andExpect(status().isOk());
-
-        mockMvc.perform(get("/rs/list"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
-                .andExpect(jsonPath("$[0].keyword", is("无分类")))
-                .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
-                .andExpect(jsonPath("$[1].keyword", is("无分类")));
     }
 
     @Test
@@ -198,7 +189,7 @@ class RsListApplicationTests {
         RsEventEntity rsEventEntity = RsEventEntity.builder()
                 .eventName("投票")
                 .keyword("娱乐")
-                .userId(userEntity.getId())
+                .user(userEntity)
                 .build();
         rsEventRepository.save(rsEventEntity);
         Date voteTime = new Date();
@@ -226,7 +217,7 @@ class RsListApplicationTests {
         RsEventEntity rsEventEntity = RsEventEntity.builder()
                 .eventName("投票")
                 .keyword("娱乐")
-                .userId(userEntity.getId())
+                .user(userEntity)
                 .build();
         rsEventRepository.save(rsEventEntity);
         Date voteTime = new Date();

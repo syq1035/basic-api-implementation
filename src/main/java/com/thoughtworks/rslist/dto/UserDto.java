@@ -1,12 +1,14 @@
 package com.thoughtworks.rslist.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
@@ -24,7 +26,7 @@ public class UserDto {
     @NotEmpty
     @Pattern(regexp = "^1\\d{10}$")
     private String phone;
-    private int voteNum = 10;
+    private int voteNum;
 
     public UserDto(String userName, Integer age, String gender, String email, String phone) {
         this.userName = userName;

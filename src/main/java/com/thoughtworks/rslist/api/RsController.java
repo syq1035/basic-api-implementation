@@ -2,6 +2,7 @@ package com.thoughtworks.rslist.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thoughtworks.rslist.dto.RsEvent;
+import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.dto.Vote;
 import com.thoughtworks.rslist.entity.RsEventEntity;
 import com.thoughtworks.rslist.entity.UserEntity;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 public class RsController {
@@ -41,8 +44,23 @@ public class RsController {
     public ResponseEntity<List<RsEvent>> getAllRsEvent(@RequestParam(required = false) Integer start,
                                                       @RequestParam(required = false) Integer end) {
         if(start == null || end == null) {
-            return ResponseEntity.ok(rsList);
+            List<RsEventEntity> rsEventEntityList = rsEventRepository.findAll();
+            List<RsEvent> rsEvents = rsEventEntityList.stream().map(rsEventEntity ->
+                    RsEvent.builder()
+                            .eventName(rsEventEntity.getEventName())
+                            .keyword(rsEventEntity.getKeyword())
+                            .user(UserDto.builder()
+                                    .userName(rsEventEntity.getUser().getUserName())
+                                    .age(rsEventEntity.getUser().getAge())
+                                    .gender(rsEventEntity.getUser().getGender())
+                                    .email(rsEventEntity.getUser().getEmail())
+                                    .phone(rsEventEntity.getUser().getPhone())
+                                    .build())
+                            .build()
+            ).collect(Collectors.toList());
+            return ResponseEntity.ok(rsEvents);
         }
+
         if(start > 0 && end < rsList.size() && start < end) {
             return ResponseEntity.ok(rsList.subList(start - 1, end));
         }
@@ -59,13 +77,15 @@ public class RsController {
 
     @PostMapping("/rs/event")
     public ResponseEntity addRsEvent(@Valid @RequestBody RsEvent rsEvent) throws JsonProcessingException {
-        if (!userRepository.existsById(rsEvent.getUserId())) {
+        Optional<UserEntity> user = userRepository.findById(rsEvent.getUserId());
+        if (!user.isPresent()) {
             return ResponseEntity.badRequest().build();
         }
+
         RsEventEntity rsEventEntity = RsEventEntity.builder()
                 .eventName(rsEvent.getEventName())
                 .keyword(rsEvent.getKeyword())
-                .userId(rsEvent.getUserId())
+                .user(user.get())
                 .build();
         rsEventRepository.save(rsEventEntity);
         return ResponseEntity.created(null).build();
@@ -74,7 +94,7 @@ public class RsController {
     @PutMapping("/rs/{rsEventId}")
     public ResponseEntity editRsEvent(@PathVariable int rsEventId, @RequestBody RsEvent rsEvent) throws JsonProcessingException {
         RsEventEntity rsEventEntity = rsEventRepository.findById(rsEventId).get();
-        if (rsEvent.getUserId() != rsEventEntity.getUserId()) {
+        if (rsEvent.getUserId() != rsEventEntity.getUser().getId()) {
             return ResponseEntity.badRequest().build();
         }
         if(rsEvent.getEventName() != null) {

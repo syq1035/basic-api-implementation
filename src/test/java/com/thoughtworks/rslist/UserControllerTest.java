@@ -76,7 +76,7 @@ public class UserControllerTest {
         RsEventEntity rsEventEntity = RsEventEntity.builder()
                 .eventName("睡觉了")
                 .keyword("娱乐")
-                .userId(userEntity.getId())
+                .user(userEntity)
                 .build();
         rsEventRepository.save(rsEventEntity);
 
