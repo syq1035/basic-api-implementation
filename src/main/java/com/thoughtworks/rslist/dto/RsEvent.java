@@ -20,7 +20,7 @@ public class RsEvent {
     @Valid
     private int userId;
 
-    private UserDto user;
+    private User user;
 
     public RsEvent(String eventName, String keyword) {
         this.eventName = eventName;
@@ -44,12 +44,12 @@ public class RsEvent {
     }
 
     @JsonProperty
-    public UserDto getUser() {
+    public User getUser() {
         return user;
     }
 
     @JsonIgnore
-    public void setUser(UserDto user) {
+    public void setUser(User user) {
         this.user = user;
     }
 }

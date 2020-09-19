@@ -1,14 +1,14 @@
 package com.thoughtworks.rslist.api;
 
-import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.dto.User;
 import com.thoughtworks.rslist.entity.UserEntity;
 import com.thoughtworks.rslist.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class UserController {
@@ -18,42 +18,49 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/user/register")
-    public ResponseEntity register(@Valid @RequestBody UserDto userDto) {
+    @PostMapping("/user")
+    public ResponseEntity register(@Valid @RequestBody User user) {
         UserEntity userEntity = UserEntity.builder()
-                .userName(userDto.getUserName())
-                .age(userDto.getAge())
-                .email(userDto.getEmail())
-                .gender(userDto.getGender())
-                .phone(userDto.getPhone())
-                .voteNum(userDto.getVoteNum())
+                .userName(user.getUserName())
+                .age(user.getAge())
+                .email(user.getEmail())
+                .gender(user.getGender())
+                .phone(user.getPhone())
+                .voteNum(user.getVoteNum())
                 .build();
         userRepository.save(userEntity);
         return ResponseEntity.created(null).build();
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity getUserById(@PathVariable int id) {
-         UserEntity userEntity = userRepository.findById(id).get();
-         return ResponseEntity.ok(UserEntity.builder()
-                 .userName(userEntity.getUserName())
-                 .age(userEntity.getAge())
-                 .gender(userEntity.getGender())
-                 .email(userEntity.getEmail())
-                 .phone(userEntity.getPhone())
-                 .build());
+    public ResponseEntity<User> getUserById(@PathVariable int id) {
+        UserEntity userEntity = userRepository.findById(id).get();
+        User user = userEntityToUser(userEntity);
+        return ResponseEntity.ok(user);
     }
 
     @DeleteMapping("/user/{id}")
-    @Transactional
     public ResponseEntity deleteUserById(@PathVariable int id) {
         userRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserEntity>> getAllUserList() {
-        List<UserEntity> users = userRepository.findAll();
+    public ResponseEntity<List<User>> getAllUserList() {
+        List<UserEntity> userEntityList = userRepository.findAll();
+        List<User> users = userEntityList.stream().map(userEntity -> userEntityToUser(userEntity)).collect(Collectors.toList());
         return ResponseEntity.ok(users);
     }
+
+    private User userEntityToUser(UserEntity userEntity) {
+        User user = User.builder()
+                .userName(userEntity.getUserName())
+                .age(userEntity.getAge())
+                .gender(userEntity.getGender())
+                .email(userEntity.getEmail())
+                .phone(userEntity.getPhone())
+                .build();
+        return user;
+    }
+
 }

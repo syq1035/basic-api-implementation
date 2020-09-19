@@ -11,7 +11,7 @@ import javax.validation.constraints.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class User {
     @NotEmpty
     @Size(max = 8)
     private String userName;
@@ -28,7 +28,7 @@ public class UserDto {
     private String phone;
     private int voteNum;
 
-    public UserDto(String userName, Integer age, String gender, String email, String phone) {
+    public User(String userName, Integer age, String gender, String email, String phone) {
         this.userName = userName;
         this.age = age;
         this.gender = gender;

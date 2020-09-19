@@ -2,7 +2,7 @@ package com.thoughtworks.rslist.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thoughtworks.rslist.dto.RsEvent;
-import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.dto.User;
 import com.thoughtworks.rslist.dto.Vote;
 import com.thoughtworks.rslist.entity.RsEventEntity;
 import com.thoughtworks.rslist.entity.UserEntity;
@@ -32,7 +32,7 @@ public class RsController {
     }
 
 
-    @GetMapping("/rs/list")
+    @GetMapping("/rss")
     public ResponseEntity<List<RsEvent>> getAllRsEvent() {
         List<RsEventEntity> rsEventEntityList = rsEventRepository.findAll();
         List<RsEvent> rsEvents = rsEventEntityList.stream().map(rsEventEntity -> rsEventEntityToRsEvent(rsEventEntity)).collect(Collectors.toList());
@@ -50,7 +50,7 @@ public class RsController {
         return ResponseEntity.ok(rsEvent);
     }
 
-    @PostMapping("/rs/event")
+    @PostMapping("/rs")
     public ResponseEntity addRsEvent(@Valid @RequestBody RsEvent rsEvent) throws JsonProcessingException {
         Optional<UserEntity> user = userRepository.findById(rsEvent.getUserId());
         if (!user.isPresent()) {
@@ -66,9 +66,9 @@ public class RsController {
         return ResponseEntity.created(null).build();
     }
 
-    @PutMapping("/rs/{rsEventId}")
-    public ResponseEntity editRsEvent(@PathVariable int rsEventId, @RequestBody RsEvent rsEvent) throws JsonProcessingException {
-        RsEventEntity rsEventEntity = rsEventRepository.findById(rsEventId).get();
+    @PutMapping("/rs/{id}")
+    public ResponseEntity editRsEvent(@PathVariable int id, @RequestBody RsEvent rsEvent) throws JsonProcessingException {
+        RsEventEntity rsEventEntity = rsEventRepository.findById(id).get();
         if (rsEvent.getUserId() != rsEventEntity.getUser().getId()) {
             return ResponseEntity.badRequest().build();
         }
@@ -88,14 +88,14 @@ public class RsController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/rs/vote/{rsEventId}")
-    public ResponseEntity vote(@PathVariable int rsEventId, @RequestBody Vote vote) {
+    @PostMapping("/rs/vote/{id}")
+    public ResponseEntity vote(@PathVariable int id, @RequestBody Vote vote) {
         UserEntity userEntity = userRepository.findById(vote.getUserId()).get();
         if(userEntity.getVoteNum() < vote.getVoteNum()) {
             return ResponseEntity.badRequest().build();
         }
         VoteEntity voteEntity = VoteEntity.builder()
-                .rsEventId(rsEventId)
+                .rsEventId(id)
                 .userId(vote.getUserId())
                 .voteNum(vote.getVoteNum())
                 .voteTime(vote.getVoteTime())
@@ -110,7 +110,7 @@ public class RsController {
         RsEvent rsEvent = RsEvent.builder()
                 .eventName(rsEventEntity.getEventName())
                 .keyword(rsEventEntity.getKeyword())
-                .user(UserDto.builder()
+                .user(User.builder()
                         .userName(rsEventEntity.getUser().getUserName())
                         .age(rsEventEntity.getUser().getAge())
                         .gender(rsEventEntity.getUser().getGender())
