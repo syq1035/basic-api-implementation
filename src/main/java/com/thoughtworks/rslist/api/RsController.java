@@ -10,7 +10,6 @@ import com.thoughtworks.rslist.entity.VoteEntity;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import com.thoughtworks.rslist.repository.VoteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +21,15 @@ import java.util.stream.Collectors;
 @RestController
 public class RsController {
 
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    RsEventRepository rsEventRepository;
-    @Autowired
-    VoteRepository voteRepository;
+    public final UserRepository userRepository;
+    public final RsEventRepository rsEventRepository;
+    public final VoteRepository voteRepository;
+
+    public RsController(UserRepository userRepository, RsEventRepository rsEventRepository, VoteRepository voteRepository) {
+        this.userRepository = userRepository;
+        this.rsEventRepository = rsEventRepository;
+        this.voteRepository = voteRepository;
+    }
 
 
     @GetMapping("/rs/list")

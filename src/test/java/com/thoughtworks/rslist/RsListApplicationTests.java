@@ -15,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -183,7 +183,7 @@ class RsListApplicationTests {
                 .user(userEntity)
                 .build();
         rsEventRepository.save(rsEventEntity);
-        Date voteTime = new Date();
+        LocalDateTime voteTime = LocalDateTime.now();
         Vote vote = new Vote(userEntity.getId(), 4, voteTime);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(vote);
@@ -211,11 +211,12 @@ class RsListApplicationTests {
                 .user(userEntity)
                 .build();
         rsEventRepository.save(rsEventEntity);
-        Date voteTime = new Date();
+        LocalDateTime voteTime = LocalDateTime.now();
         Vote vote = new Vote(userEntity.getId(), 12, voteTime);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(vote);
         mockMvc.perform(post("/rs/vote/{rsEventId}", rsEventEntity.getId()).content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
+
 }
